@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор картинок</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .gallery img {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .gallery img.selected {
+            border-color: #4CAF50;
+        }
+        .gallery img.rejected {
+            border-color: #FF5733;
+        }
+        .hidden {
+            display: none;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Выберите картинки</h1>
+
+    <!-- Шаг 1: Выбор одной картинки из 9 -->
+    <div id="step1" class="step">
+        <h2>Шаг 1: Выберите одну картинку</h2>
+        <div class="gallery" id="gallery1"></div>
+        <button id="next1" disabled>Продолжить</button>
+    </div>
+
+    <!-- Шаг 2: Выбор двух картинок из 27 -->
+    <div id="step2" class="step hidden">
+        <h2>Шаг 2: Выберите самую привлекательную и самую отвратительную картинки</h2>
+        <div class="gallery" id="gallery2"></div>
+        <button id="next2" disabled>Завершить</button>
+    </div>
+
+    <!-- Итоговый результат -->
+    <div id="result" class="result hidden">
+        <h2>Результат:</h2>
+        <p id="finalText"></p>
+    </div>
+
+    <script>
+        // Данные для картинок (замените URL на реальные)
+        const imagesStep1 = [
+            { src: https://drive.google.com/file/d/1IfRQMrB_HZQzkIlnim11DI8aT1lSSlUk/view?usp=sharing, text: "Текст 1" },
+            { src: "image2.jpg", text: "Текст 2" },
+            { src: "image3.jpg", text: "Текст 3" },
+            { src: "image4.jpg", text: "Текст 4" },
+            { src: "image5.jpg", text: "Текст 5" },
+            { src: "image6.jpg", text: "Текст 6" },
+            { src: "image7.jpg", text: "Текст 7" },
+            { src: "image8.jpg", text: "Текст 8" },
+            { src: "image9.jpg", text: "Текст 9" }
+        ];
+
+        const imagesStep2 = Array.from({ length: 27 }, (_, i) => ({
+            src: `image${i + 10}.jpg`,
+            text: `Текст ${i + 10}`
+        }));
+
+        let selectedTexts = [];
+        let selectedImagesStep1 = null;
+        let selectedImagesStep2 = { attractive: null, repulsive: null };
+
+        // Функция для создания галереи
+        function createGallery(containerId, images, onClick) {
+            const gallery = document.getElementById(containerId);
+            gallery.innerHTML = "";
+            images.forEach((image, index) => {
+                const img = document.createElement("img");
+                img.src = image.src;
+                img.alt = image.text;
+                img.dataset.index = index;
+                img.addEventListener("click", () => onClick(img, image));
+                gallery.appendChild(img);
+            });
+        }
+
+        // Шаг 1: Выбор одной картинки
+        createGallery("gallery1", imagesStep1, (img, image) => {
+            if (selectedImagesStep1) {
+                selectedImagesStep1.classList.remove("selected");
+            }
+            img.classList.add("selected");
+            selectedImagesStep1 = img;
+            document.getElementById("next1").disabled = false;
+        });
+
+        document.getElementById("next1").addEventListener("click", () => {
+            const selectedIndex = selectedImagesStep1.dataset.index;
+            selectedTexts.push(imagesStep1[selectedIndex].text);
+            document.getElementById("step1").classList.add("hidden");
+            document.getElementById("step2").classList.remove("hidden");
+        });
+
+        // Шаг 2: Выбор двух картинок
+        createGallery("gallery2", imagesStep2, (img, image) => {
+            if (img.classList.contains("selected")) {
+                img.classList.remove("selected");
+                selectedImagesStep2.attractive = null;
+            } else if (img.classList.contains("rejected")) {
+                img.classList.remove("rejected");
+                selectedImagesStep2.repulsive = null;
+            } else {
+                if (!selectedImagesStep2.attractive) {
+                    img.classList.add("selected");
+                    selectedImagesStep2.attractive = img;
+                } else if (!selectedImagesStep2.repulsive) {
+                    img.classList.add("rejected");
+                    selectedImagesStep2.repulsive = img;
+                }
+            }
+            document.getElementById("next2").disabled =
+                !selectedImagesStep2.attractive || !selectedImagesStep2.repulsive;
+        });
+
+        document.getElementById("next2").addEventListener("click", () => {
+            const attractiveIndex = selectedImagesStep2.attractive.dataset.index;
+            const repulsiveIndex = selectedImagesStep2.repulsive.dataset.index;
+            selectedTexts.push(imagesStep2[attractiveIndex].text, imagesStep2[repulsiveIndex].text);
+
+            document.getElementById("step2").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+
+            // Отображение результата
+            const finalText = selectedTexts.join(", ");
+            document.getElementById("finalText").textContent = finalText;
+        });
+    </script>
+</body>
+</html>
