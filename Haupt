@@ -86,7 +86,7 @@
         // Данные для картинок (замените URL на реальные)
         const imagesStep1 = [
             { src: https://drive.google.com/file/d/1IfRQMrB_HZQzkIlnim11DI8aT1lSSlUk/view?usp=sharing, text: "Текст 1" },
-            { src: "image2.jpg", text: "Текст 2" },
+            { src: C:\Users\andri\iCloudDrive\Новая папка\Dokumente\Farben\Sajt\image\9, text: "Текст 2" },
             { src: "image3.jpg", text: "Текст 3" },
             { src: "image4.jpg", text: "Текст 4" },
             { src: "image5.jpg", text: "Текст 5" },
